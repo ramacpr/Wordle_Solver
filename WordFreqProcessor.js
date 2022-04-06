@@ -1,5 +1,4 @@
 const fileSystem = require('fs')
-const jsonFile = require('jsonfile');
 const Words = require('./words');
 
 module.exports = class WordFrequency{
@@ -37,7 +36,7 @@ module.exports = class WordFrequency{
         let json = JSON.stringify([...this.wordFrequencyMap]);
         fileSystem.writeFileSync('.\\data\\wordFrequencies.json', json, 'utf8', (err) => {
             if (err) throw err;
-            console.log('word frequency file has been saved!');
+            //console.log('word frequency file has been saved!');
         });
     }
 }

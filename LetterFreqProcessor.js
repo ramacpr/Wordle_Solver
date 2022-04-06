@@ -35,7 +35,7 @@ module.exports = class LetterFrequency{
         let json = JSON.stringify([...this.letterFrequencyMap]);
         fileSystem.writeFileSync('.\\data\\letterFrequencies.json', json, 'utf8', (err) => {
             if (err) throw err;
-            console.log('letter frequency file has been saved!');
+            //console.log('letter frequency file has been saved!');
         });
     }
 }
