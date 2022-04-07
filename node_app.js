@@ -5,67 +5,88 @@ const Words = require('./words');
 let lfm = new LetterFrequency();
 let wfm = new WordFrequency();
 let wordMap = null;
+let canLog = false;
 
 (function(){
+    
     // one time only
     updateAllFrequencies()
-    wordMap = new Map(wfm.wordFrequencyMap);
 
     // after benchmarcking using the word 'plumb' gave the highest accuracy of 76%
-    let firstguess = 'plumb', destinationWord = 'stare'
-    let maxGuesses = 6, guessCount = 1
-    let greenAplhabetPosMap = new Map(), blackAplhabetPosMap = new Map(), yellowAplhabetPosMap = new Map()
-    let usedWords = new Set()
-
-    while(guessCount <= maxGuesses){
-        let guess = getNextGuess(wordMap, greenAplhabetPosMap, yellowAplhabetPosMap, blackAplhabetPosMap, usedWords, firstguess)
-        if(guess[0] === destinationWord){
-            console.log('----- guess ' + guessCount + ' -> ' + guess[0])
-            break;
-        } else if(guess[1].size <= 0){
-            console.log('Hard luck! Could not reach your destination!!!')
-            break;
+    let firstguess = 'plumb', destinationWord = process.argv[2] === '' ? 'stare' : process.argv[2]
+    canLog = process.argv[3] === 'true' ? true : false
+    console.log('Test destination word: ' + destinationWord)
+    if(canLog){
+        for(var i=0;i<process.argv.length;i++){
+            console.log(process.argv[i]);
         }
-        console.log('----- guess ' + guessCount + ' -> ' + guess[0])
-        wordMap = guess[1]
-        guessCount++
-        greenAplhabetPosMap = getGreenMap(guess[0], destinationWord)
-        yellowAplhabetPosMap = getYellowMap(guess[0], destinationWord)
-        blackAplhabetPosMap = getBlackMap(guess[0], destinationWord)
-        usedWords.add(guess[0])
     }
-    if(guessCount > maxGuesses){
-        console.log('Out of guesses! Better luck next time...')
-    }    
+    
+
+    if(destinationWord === ''){
+        console.log("INVALID DESTINATION WORD: Input empty. Please input a valid word to test.")
+    } else if(destinationWord.length != 5 ){
+        console.log("INVALID DESTINATION WORD: Input less/more than 5 letters. Please input a valid word to test.")
+    }else{
+        console.log("----------WORDLE-SOLVER-TEST-MODE---------------\n")
+        let maxGuesses = 6, guessCount = 1
+        let greenAplhabetPosMap = new Map(), blackAplhabetPosMap = new Map(), yellowAplhabetPosMap = new Map()
+        let usedWords = new Set()
+
+        
+        wordMap = new Map(wfm.wordFrequencyMap);
+        while(guessCount <= maxGuesses){
+            let guess = getNextGuess(wordMap, greenAplhabetPosMap, yellowAplhabetPosMap, blackAplhabetPosMap, usedWords, firstguess)
+            if(guess[0] === destinationWord){
+                consoleLog('----- guess ' + guessCount + ' -> ' + guess[0])
+                break;
+            } else if(guess[1].size <= 0){
+                console.log('Hard luck! Could not reach ' + destinationWord + '!!!')
+                break;
+            }
+            consoleLog('----- guess ' + guessCount + ' -> ' + guess[0])            
+            wordMap = guess[1]
+            guessCount++
+            greenAplhabetPosMap = getGreenMap(guess[0], destinationWord)
+            yellowAplhabetPosMap = getYellowMap(guess[0], destinationWord)
+            blackAplhabetPosMap = getBlackMap(guess[0], destinationWord)
+            usedWords.add(guess[0])
+        }
+        if(guessCount > maxGuesses){
+            console.log('Out of guesses! Better luck next time...')
+        } else {
+            console.log('Result in ' + guessCount + ' guesses')
+        } 
+    }
 })();
 
 function updateAllFrequencies(){
     // 1. update/get letter frequencies   
     if(!fileSystem.existsSync('./data/letterFrequencies.json')){       
         lfm.beginProcess()
-        console.log('Calculating letter frequencies for the first time...')
+        consoleLog('Calculating letter frequencies for the first time...')
     } else { 
         let letterjson = fileSystem.readFileSync('./data/letterFrequencies.json', 'utf8', function readFileCallback(err, data, letterFrequenciesObj){
             if (err){
-                console.log(err);
+                consoleLog(err);
             } 
             });
         lfm.setLetterFreqMap(new Map(JSON.parse(letterjson)))
-        console.log('Letter frequencies fetched from json file...')
+        consoleLog('Letter frequencies fetched from json file...')
     }  
     
     // 2. update/get word frequencies
     if(!fileSystem.existsSync('./data/wordFrequencies.json')){       
        wfm.beginProcess(lfm.letterFrequencyMap)
-       console.log('Calculating word frequencies for the first time...')
+       consoleLog('Calculating word frequencies for the first time...')
     } else {
         let wordjson = fileSystem.readFileSync('./data/wordFrequencies.json', 'utf8', function readFileCallback(err, data, letterFrequenciesObj){
             if (err){
-                console.log(err);
+                consoleLog(err);
             } 
         }) 
         wfm.setWordFreqMap(new Map(JSON.parse(wordjson)));
-        console.log('Word frequencies fetched from json file...')
+        consoleLog('Word frequencies fetched from json file...')
     } 
 }
 
@@ -75,21 +96,21 @@ function getNextGuess(wordMap, green, yellow, black, usedWord){
         return ['plumb', wordMap]
     } else {
         let filteredGreenResults = green.size === 0 ? wordMap : filterForGreen(green)
-        console.log('after green filter... ' + filteredGreenResults.size + ' possibilities')
+        consoleLog('after green filter... ' + filteredGreenResults.size + ' possibilities')
         if(filteredGreenResults.size === 1){
             highestProbableWord = getHighestProbableWord(filteredGreenResults, usedWord)
             return [highestProbableWord, filteredGreenResults]
         }
 
         let filteredBlackResults = black.size === 0 ? filteredGreenResults : filterForBlack(black, filteredGreenResults)
-        console.log('after black filter... ' + filteredBlackResults.size + ' possibilities')
+        consoleLog('after black filter... ' + filteredBlackResults.size + ' possibilities')
         if(filteredBlackResults.size === 1){
             highestProbableWord = getHighestProbableWord(filteredBlackResults, usedWord)
             return [highestProbableWord, filteredBlackResults]
         }
 
         let filteredResults = yellow.size === 0 ? filteredBlackResults : filterForYellow(yellow, filteredBlackResults)
-        console.log('after yellow filter... ' + filteredResults.size + ' possibilities')
+        consoleLog('after yellow filter... ' + filteredResults.size + ' possibilities')
         if(filteredResults.size === 1){
             highestProbableWord = getHighestProbableWord(filteredResults, usedWord)
             return [highestProbableWord, filteredResults]
@@ -237,4 +258,10 @@ function getYellowFilterToExecute(yellowAplhabetPosMap){
     functionBody = 'if(' + comparisonStatement + '){return true}else{return false}'
     result = new Function('word', functionBody)
     return result
+}
+
+function consoleLog(logMessage){
+    if(canLog){
+        console.log(logMessage)
+    }
 }

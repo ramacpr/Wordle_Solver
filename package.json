@@ -1,1 +1,11 @@
-{"dependencies":{"filereader":"^0.10.3","fs":"^0.0.1-security","jsonfile":"^6.1.0"}}
+{
+    "dependencies":{
+        "filereader":"^0.10.3",
+        "fs":"^0.0.1-security",
+        "jsonfile":"^6.1.0"
+    },
+    "scripts":{
+        "wordleForWeb": "browserify main.js -o bundle.js",
+        "wordleOnNode": "node node_app.js"
+    }
+}
