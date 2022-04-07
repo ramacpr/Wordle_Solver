@@ -1,5 +1,4 @@
-const letterJson = require('./data/letterFrequencies.json')
-const wordJson = require('./data/wordFrequencies.json')
+const fileSystem = require('fs')
 const LetterFrequency = require('./LetterFreqProcessor');
 const WordFrequency = require('./WordFreqProcessor');
 const Words = require('./words');
@@ -7,20 +6,67 @@ let lfm = new LetterFrequency();
 let wfm = new WordFrequency();
 let wordMap = null;
 
-module.exports = {
-    getAllWordFrequencies: function(){
-        wfm.setWordFreqMap(new Map(wordJson))
-        return wfm.wordFrequencyMap
-    },
+(function(){
+    // one time only
+    updateAllFrequencies()
+    wordMap = new Map(wfm.wordFrequencyMap);
 
-    getNextGuessWord: function(wordMap, green, yellow, black, usedWord){
-        return getNextGuess(wordMap, green, yellow, black, usedWord)
+    // after benchmarcking using the word 'plumb' gave the highest accuracy of 76%
+    let firstguess = 'plumb', destinationWord = 'stare'
+    let maxGuesses = 6, guessCount = 1
+    let greenAplhabetPosMap = new Map(), blackAplhabetPosMap = new Map(), yellowAplhabetPosMap = new Map()
+    let usedWords = new Set()
+
+    while(guessCount <= maxGuesses){
+        let guess = getNextGuess(wordMap, greenAplhabetPosMap, yellowAplhabetPosMap, blackAplhabetPosMap, usedWords, firstguess)
+        if(guess[0] === destinationWord){
+            console.log('----- guess ' + guessCount + ' -> ' + guess[0])
+            break;
+        } else if(guess[1].size <= 0){
+            console.log('Hard luck! Could not reach your destination!!!')
+            break;
+        }
+        console.log('----- guess ' + guessCount + ' -> ' + guess[0])
+        wordMap = guess[1]
+        guessCount++
+        greenAplhabetPosMap = getGreenMap(guess[0], destinationWord)
+        yellowAplhabetPosMap = getYellowMap(guess[0], destinationWord)
+        blackAplhabetPosMap = getBlackMap(guess[0], destinationWord)
+        usedWords.add(guess[0])
     }
-}
+    if(guessCount > maxGuesses){
+        console.log('Out of guesses! Better luck next time...')
+    }    
+})();
 
 function updateAllFrequencies(){
-    lfm.setLetterFreqMap(new Map(letterJson))
-    wfm.setWordFreqMap(new Map(wordJson))
+    // 1. update/get letter frequencies   
+    if(!fileSystem.existsSync('./data/letterFrequencies.json')){       
+        lfm.beginProcess()
+        console.log('Calculating letter frequencies for the first time...')
+    } else { 
+        let letterjson = fileSystem.readFileSync('./data/letterFrequencies.json', 'utf8', function readFileCallback(err, data, letterFrequenciesObj){
+            if (err){
+                console.log(err);
+            } 
+            });
+        lfm.setLetterFreqMap(new Map(JSON.parse(letterjson)))
+        console.log('Letter frequencies fetched from json file...')
+    }  
+    
+    // 2. update/get word frequencies
+    if(!fileSystem.existsSync('./data/wordFrequencies.json')){       
+       wfm.beginProcess(lfm.letterFrequencyMap)
+       console.log('Calculating word frequencies for the first time...')
+    } else {
+        let wordjson = fileSystem.readFileSync('./data/wordFrequencies.json', 'utf8', function readFileCallback(err, data, letterFrequenciesObj){
+            if (err){
+                console.log(err);
+            } 
+        }) 
+        wfm.setWordFreqMap(new Map(JSON.parse(wordjson)));
+        console.log('Word frequencies fetched from json file...')
+    } 
 }
 
 function getNextGuess(wordMap, green, yellow, black, usedWord){
@@ -52,6 +98,35 @@ function getNextGuess(wordMap, green, yellow, black, usedWord){
         highestProbableWord = getHighestProbableWord(filteredResults, usedWord)
         return [highestProbableWord, filteredResults]
     }   
+}
+
+
+function getGreenMap(guess, destinationWord){
+    let greenResult = new Map()
+    for(let index = 0; index < 5; index++){
+        if(guess[index] === destinationWord[index]){
+            greenResult.set(destinationWord[index], index)
+        }
+    }
+    return greenResult
+}
+function getYellowMap(guess, destinationWord){
+    let yellowResult = new Map()
+    for(let index = 0; index < 5; index++){
+        if(destinationWord.includes(guess[index]) && destinationWord[index] != guess[index]){
+            yellowResult.set(guess[index], index)
+        }
+    }
+    return yellowResult
+}
+function getBlackMap(guess, destinationWord){
+    let blackResult = new Map()
+    for(let index = 0; index < 5; index++){
+        if(!destinationWord.includes(guess[index])){
+            blackResult.set(guess[index], index)
+        }
+    }
+    return blackResult
 }
 
 function getHighestProbableWord(wordMap, usedWord){

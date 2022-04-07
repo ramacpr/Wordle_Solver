@@ -105,68 +105,10 @@ module.exports = {
     }
 }
 
-// (function(){
-//      // one time only
-//     updateAllFrequencies()
-//     wordMap = new Map(wfm.wordFrequencyMap);
-
-//     // after benchmarcking using the word 'plumb' gave the highest accuracy of 76%
-//     let firstguess = 'plumb', destinationWord = 'arise'
-//     let maxGuesses = 6, guessCount = 1
-//     let greenAplhabetPosMap = new Map(), blackAplhabetPosMap = new Map(), yellowAplhabetPosMap = new Map()
-//     let usedWords = new Set()
-
-//     while(guessCount <= maxGuesses){
-//         let guess = getNextGuess(wordMap, greenAplhabetPosMap, yellowAplhabetPosMap, blackAplhabetPosMap, usedWords, firstguess)
-//         if(guess[0] === destinationWord){
-//             console.log('----- guess ' + guessCount + ' -> ' + guess[0])
-//             break;
-//         } else if(guess[1].size <= 0){
-//             console.log('Hard luck! Could not reach your destination!!!')
-//             break;
-//         }
-//         console.log('----- guess ' + guessCount + ' -> ' + guess[0])
-//         wordMap = guess[1]
-//         guessCount++
-
-//         greenAplhabetPosMap = getGreenMap(guess[0], destinationWord)
-//         yellowAplhabetPosMap = getYellowMap(guess[0], destinationWord)
-//         blackAplhabetPosMap = getBlackMap(guess[0], destinationWord)
-//         usedWords.add(guess[0])
-//     }
-//     if(guessCount > maxGuesses){
-//         console.log('Out of guesses! Better luck next time...')
-//     }    
-// })();
-
 function updateAllFrequencies(){
     lfm.setLetterFreqMap(new Map(letterJson))
     wfm.setWordFreqMap(new Map(wordJson))
-    // 1. update/get letter frequencies  
-    // let file = new File()
-    // let reader = new FileReader()
-    // reader.readAsText('./data/letterFrequencies.json', 'utf8')
-    // reader.onloadend = function(){
-    //     lfm.setLetterFreqMap(new Map(JSON.parse(reader.result))) 
-    //     console.log(lfm.letterFrequencyMap)
-    // }
-    // let data = fileSystem.readFileSync('./data/letterFrequencies.json', 'utf8', function(err, data){
-    //     if(err){
-    //         lfm.beginProcess()
-    //     }
-    // })   
-    // 
-    
-    // 2. update/get word frequencies
-    // data = fileSystem.readFileSync('./data/wordFrequencies.json', 'utf8', function(err, data){
-    //     if(err){
-    //         wfm.beginProcess(lfm.letterFrequencyMap)
-    //     }
-    // })
-    // ;
 }
-
-
 
 function getNextGuess(wordMap, green, yellow, black, usedWord){
     let highestProbableWord = ''
@@ -198,37 +140,6 @@ function getNextGuess(wordMap, green, yellow, black, usedWord){
         return [highestProbableWord, filteredResults]
     }   
 }
-
-
-// function getGreenMap(guess, destinationWord){
-//     let greenResult = new Map()
-//     for(let index = 0; index < 5; index++){
-//         if(guess[index] === destinationWord[index]){
-//             greenResult.set(destinationWord[index], index)
-//         }
-//     }
-//     return greenResult
-// }
-// function getYellowMap(guess, destinationWord){
-//     let yellowResult = new Map()
-//     for(let index = 0; index < 5; index++){
-//         if(destinationWord.includes(guess[index]) && destinationWord[index] != guess[index]){
-//             yellowResult.set(guess[index], index)
-//         }
-//     }
-//     return yellowResult
-// }
-// function getBlackMap(guess, destinationWord){
-//     let blackResult = new Map()
-//     for(let index = 0; index < 5; index++){
-//         if(!destinationWord.includes(guess[index])){
-//             blackResult.set(guess[index], index)
-//         }
-//     }
-//     return blackResult
-// }
-
-
 
 function getHighestProbableWord(wordMap, usedWord){
     let maxFreq = 0;
@@ -1607,34 +1518,23 @@ this.wordle.bundle = function(e) {
                         
                         if(this.allWordMap == null){
                             this.allWordMap = new Map(wordle_solver.getAllWordFrequencies())
-                            console.log('111')
                         }
                         if(this.greenAplhabetPosMap == null){
                             this.greenAplhabetPosMap = new Map()
-                            console.log('111')
                         }
                         if(this.yellowAplhabetPosMap == null){
                             this.yellowAplhabetPosMap = new Map()
-                            console.log('111')
                         }
                         if(this.blackAplhabetPosMap == null){
                             this.blackAplhabetPosMap = new Map()
-                            console.log('111')
                         }
                         if(this.usedWords == null){
-                            console.log('111')
                             this.usedWords = new Set()
-                            console.log('222')
                         }
-                        console.log(this.allWordMap.size)
                         
                         let guess = wordle_solver.getNextGuessWord(this.allWordMap, this.greenAplhabetPosMap, this.yellowAplhabetPosMap, this.blackAplhabetPosMap, this.usedWords)
-                        console.log(this.allWordMap.size)
-                        this.usedWords.add(guess[0]) // for next time
-                        console.log(this.allWordMap.size)
-                        console.log(guess[0])
+                        this.usedWords.add(guess[0]) 
                         this.allWordMap = new Map(guess[1])
-                        console.log('allWordsMap count: ' + this.allWordMap.size)
                         this.hardMode = false
                         this.boardState[this.rowIndex] = guess[0]
                         this.$board.querySelectorAll("game-row")[this.rowIndex].setAttribute("letters", guess[0])
@@ -1645,27 +1545,18 @@ this.wordle.bundle = function(e) {
                         this.evaluateRow()
 
                         let currentGuessEvaluation = this.evaluations[this.rowIndex - 1]
-                        console.log(this.boardState[this.rowIndex - 1])
-                        console.log(currentGuessEvaluation)
                         this.greenAplhabetPosMap = new Map()
                         this.yellowAplhabetPosMap = new Map()
                         this.blackAplhabetPosMap = new Map()
                         for(let colIndex = 0; colIndex < 6; colIndex++){
-                            console.log('colIndex: ' + colIndex)
                             if(currentGuessEvaluation[colIndex] === 'correct'){ // green
                                 this.greenAplhabetPosMap.set(this.boardState[this.rowIndex - 1][colIndex], colIndex)
-                                console.log('GREEN:letter: ' + this.boardState[this.rowIndex - 1][colIndex] + ' at: ' + colIndex)
                             } else if (currentGuessEvaluation[colIndex] === 'present'){ // yellow
                                 this.yellowAplhabetPosMap.set(this.boardState[this.rowIndex - 1][colIndex], colIndex)
-                                console.log('YELLOW:letter: ' + this.boardState[this.rowIndex - 1][colIndex] + ' at: ' + colIndex)
                             } else if(currentGuessEvaluation[colIndex] === 'absent'){ // black
                                 this.blackAplhabetPosMap.set(this.boardState[this.rowIndex - 1][colIndex], colIndex)
-                                console.log('BLACK:letter: ' + this.boardState[this.rowIndex - 1][colIndex] + ' at: ' + colIndex)
                             }
                         }
-                        console.log(this.yellowAplhabetPosMap)
-                        console.log(this.blackAplhabetPosMap)
-                        console.log(this.greenAplhabetPosMap)
                     }
                 }
             }, {
