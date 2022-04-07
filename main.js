@@ -1217,38 +1217,38 @@ this.wordle.bundle = function(e) {
             }, {
                 key: "removeLetter",
                 value: function() {
-                  this.rowIndex = 0
-                  this.tileIndex = 0
-                  this.boardState[0] = ""
-                  this.$board.querySelectorAll("game-row")[0].setAttribute("letters","")
+                //   this.rowIndex = 0
+                //   this.tileIndex = 0
+                //   this.boardState[0] = ""
+                //   this.$board.querySelectorAll("game-row")[0].setAttribute("letters","")
                       
-                  this.boardState[1] = ""
-                  this.$board.querySelectorAll("game-row")[1].setAttribute("letters","")
+                //   this.boardState[1] = ""
+                //   this.$board.querySelectorAll("game-row")[1].setAttribute("letters","")
                       
-                  this.boardState[2] = ""
-                  this.$board.querySelectorAll("game-row")[2].setAttribute("letters","")
+                //   this.boardState[2] = ""
+                //   this.$board.querySelectorAll("game-row")[2].setAttribute("letters","")
                       
-                  this.boardState[3] = ""
-                  this.$board.querySelectorAll("game-row")[3].setAttribute("letters","")
+                //   this.boardState[3] = ""
+                //   this.$board.querySelectorAll("game-row")[3].setAttribute("letters","")
                       
-                  this.boardState[4] = ""
-                  this.$board.querySelectorAll("game-row")[4].setAttribute("letters","")
+                //   this.boardState[4] = ""
+                //   this.$board.querySelectorAll("game-row")[4].setAttribute("letters","")
                       
-                  this.boardState[5] = ""
-                  this.$board.querySelectorAll("game-row")[5].setAttribute("letters","")                      
+                //   this.boardState[5] = ""
+                //   this.$board.querySelectorAll("game-row")[5].setAttribute("letters","")                      
                   
-                  this.gameStatus = ls
-                    this.canInput = true
-                    this.allWordMap = null
-                    this.greenAplhabetPosMap = null
-                    this.yellowAplhabetPosMap = null
-                    this.blackAplhabetPosMap = null
-                    this.usedWords = null
-                    // if (this.gameStatus === ls && this.canInput && !(this.tileIndex <= 0)) {
-                    //     this.boardState[this.rowIndex] = this.boardState[this.rowIndex].slice(0, this.boardState[this.rowIndex].length - 1);
-                    //     var e = this.$board.querySelectorAll("game-row")[this.rowIndex];
-                    //     this.boardState[this.rowIndex] ? e.setAttribute("letters", this.boardState[this.rowIndex]) : e.removeAttribute("letters"), e.removeAttribute("invalid"), this.tileIndex -= 1
-                    // }
+                //   this.gameStatus = ls
+                //     this.canInput = true
+                //     this.allWordMap = null
+                //     this.greenAplhabetPosMap = null
+                //     this.yellowAplhabetPosMap = null
+                //     this.blackAplhabetPosMap = null
+                //     this.usedWords = null
+                    if (this.gameStatus === ls && this.canInput && !(this.tileIndex <= 0)) {
+                        this.boardState[this.rowIndex] = this.boardState[this.rowIndex].slice(0, this.boardState[this.rowIndex].length - 1);
+                        var e = this.$board.querySelectorAll("game-row")[this.rowIndex];
+                        this.boardState[this.rowIndex] ? e.setAttribute("letters", this.boardState[this.rowIndex]) : e.removeAttribute("letters"), e.removeAttribute("invalid"), this.tileIndex -= 1
+                    }
                 }
             }, {
                 key: "submitGuess",
