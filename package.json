@@ -1,1 +1,1 @@
-{"dependencies":{"fs":"^0.0.1-security","jsonfile":"^6.1.0"}}
+{"dependencies":{"filereader":"^0.10.3","fs":"^0.0.1-security","jsonfile":"^6.1.0"}}

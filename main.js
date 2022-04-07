@@ -1,8 +1,7 @@
+const wordle_solver = require('./app')
+
 this.wordle = this.wordle || {}
 this.wordle.bundle = function(e) {
-
-    let greenAplhabetPosMap = new Map(), blackAplhabetPosMap = new Map(), yellowAplhabetPosMap = new Map()
-    let usedWords = new Set()
 
     function a(e) {
         return (a = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(e) {
@@ -857,7 +856,12 @@ this.wordle.bundle = function(e) {
             lastPlayedTs: null,
             lastCompletedTs: null,
             restoringFromLocalStorage: null,
-            hardMode: !1
+            hardMode: !1,
+            greenAplhabetPosMap: null, 
+            blackAplhabetPosMap: null, 
+            yellowAplhabetPosMap: null,
+            usedWords: null,   
+            allWordMap: null 
         };
 
     function za() {
@@ -1213,25 +1217,85 @@ this.wordle.bundle = function(e) {
             }, {
                 key: "removeLetter",
                 value: function() {
-                    if (this.gameStatus === ls && this.canInput && !(this.tileIndex <= 0)) {
-                        this.boardState[this.rowIndex] = this.boardState[this.rowIndex].slice(0, this.boardState[this.rowIndex].length - 1);
-                        var e = this.$board.querySelectorAll("game-row")[this.rowIndex];
-                        this.boardState[this.rowIndex] ? e.setAttribute("letters", this.boardState[this.rowIndex]) : e.removeAttribute("letters"), e.removeAttribute("invalid"), this.tileIndex -= 1
-                    }
+                  this.rowIndex = 0
+                  this.tileIndex = 0
+                  this.boardState[0] = ""
+                  this.$board.querySelectorAll("game-row")[0].setAttribute("letters","")
+                      
+                  this.boardState[1] = ""
+                  this.$board.querySelectorAll("game-row")[1].setAttribute("letters","")
+                      
+                  this.boardState[2] = ""
+                  this.$board.querySelectorAll("game-row")[2].setAttribute("letters","")
+                      
+                  this.boardState[3] = ""
+                  this.$board.querySelectorAll("game-row")[3].setAttribute("letters","")
+                      
+                  this.boardState[4] = ""
+                  this.$board.querySelectorAll("game-row")[4].setAttribute("letters","")
+                      
+                  this.boardState[5] = ""
+                  this.$board.querySelectorAll("game-row")[5].setAttribute("letters","")                      
+                  
+                  this.gameStatus = ls
+                    this.canInput = true
+                    this.allWordMap = null
+                    this.greenAplhabetPosMap = null
+                    this.yellowAplhabetPosMap = null
+                    this.blackAplhabetPosMap = null
+                    this.usedWords = null
+                    // if (this.gameStatus === ls && this.canInput && !(this.tileIndex <= 0)) {
+                    //     this.boardState[this.rowIndex] = this.boardState[this.rowIndex].slice(0, this.boardState[this.rowIndex].length - 1);
+                    //     var e = this.$board.querySelectorAll("game-row")[this.rowIndex];
+                    //     this.boardState[this.rowIndex] ? e.setAttribute("letters", this.boardState[this.rowIndex]) : e.removeAttribute("letters"), e.removeAttribute("invalid"), this.tileIndex -= 1
+                    // }
                 }
             }, {
                 key: "submitGuess",
-                value: function() {
+                value: function() {                    
                     if (this.gameStatus === ls && this.canInput) {
-                      this.hardMode = false
-                      this.boardState[this.rowIndex] = "group"
-                      this.$board.querySelectorAll("game-row")[this.rowIndex].setAttribute("letters","plumb")
-                      this.tileIndex = 5
-                      //console.log(this.boardState)
+                        
+                        if(this.allWordMap == null){
+                            this.allWordMap = new Map(wordle_solver.getAllWordFrequencies())
+                        }
+                        if(this.greenAplhabetPosMap == null){
+                            this.greenAplhabetPosMap = new Map()
+                        }
+                        if(this.yellowAplhabetPosMap == null){
+                            this.yellowAplhabetPosMap = new Map()
+                        }
+                        if(this.blackAplhabetPosMap == null){
+                            this.blackAplhabetPosMap = new Map()
+                        }
+                        if(this.usedWords == null){
+                            this.usedWords = new Set()
+                        }
+                        
+                        let guess = wordle_solver.getNextGuessWord(this.allWordMap, this.greenAplhabetPosMap, this.yellowAplhabetPosMap, this.blackAplhabetPosMap, this.usedWords)
+                        this.usedWords.add(guess[0]) 
+                        this.allWordMap = new Map(guess[1])
+                        this.hardMode = false
+                        this.boardState[this.rowIndex] = guess[0]
+                        this.$board.querySelectorAll("game-row")[this.rowIndex].setAttribute("letters", guess[0])
+                        this.tileIndex = 5
                         if (5 !== this.tileIndex) {
-                          return this.$board.querySelectorAll("game-row")[this.rowIndex].setAttribute("invalid", ""), void this.addToast("Not enough letters");
+                            return this.$board.querySelectorAll("game-row")[this.rowIndex].setAttribute("invalid", ""), void this.addToast("Not enough letters");
                         }
                         this.evaluateRow()
+
+                        let currentGuessEvaluation = this.evaluations[this.rowIndex - 1]
+                        this.greenAplhabetPosMap = new Map()
+                        this.yellowAplhabetPosMap = new Map()
+                        this.blackAplhabetPosMap = new Map()
+                        for(let colIndex = 0; colIndex < 6; colIndex++){
+                            if(currentGuessEvaluation[colIndex] === 'correct'){ // green
+                                this.greenAplhabetPosMap.set(this.boardState[this.rowIndex - 1][colIndex], colIndex)
+                            } else if (currentGuessEvaluation[colIndex] === 'present'){ // yellow
+                                this.yellowAplhabetPosMap.set(this.boardState[this.rowIndex - 1][colIndex], colIndex)
+                            } else if(currentGuessEvaluation[colIndex] === 'absent'){ // black
+                                this.blackAplhabetPosMap.set(this.boardState[this.rowIndex - 1][colIndex], colIndex)
+                            }
+                        }
                     }
                 }
             }, {

@@ -1,5 +1,4 @@
 const fileSystem = require('fs')
-const jsonFile = require('jsonfile');
 const Words = require('./words');
 
 module.exports = class LetterFrequency{
