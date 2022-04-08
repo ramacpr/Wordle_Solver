@@ -8,7 +8,7 @@ Open the 'index.html' file from the project folder on your browser. This opens a
 Technical Background: 
 The algorithm follows the difficulty mode 'hard', i.e, the clues of the current guess evaluations will be used in the next guess. The measured accuracy of the algorithm is ~77% with the start word 'plumb'. The file accuracyReport.json has the measured accuracy for each of the words as the starting word. 
 The valid word dictionary for the algorithm is the same as the original wordle source code. 
-Steps on how to use the project and the scripts are present in the project repository. 
+Refer end of this file for steps on how to use the project and the scripts. 
 
 The repo also had a node-only file which can be used for further testing of the algorithm. Details of usage in the repo. 
 

@@ -250,6 +250,7 @@ function getYellowFilterToExecute(yellowAplhabetPosMap){
     result = new Function('word', functionBody)
     return result
 }
+
 },{"./LetterFreqProcessor":2,"./WordFreqProcessor":3,"./data/letterFrequencies.json":5,"./data/wordFrequencies.json":6,"./words":8}],5:[function(require,module,exports){
 module.exports=[["c",475],["i",670],["g",310],["a",975],["r",897],["e",1230],["b",280],["u",466],["t",729],["s",668],["y",424],["h",387],["m",316],["p",365],["w",194],["k",210],["l",716],["f",229],["o",753],["v",152],["d",393],["n",573],["q",29],["j",27],["x",37],["z",40]]
 },{}],6:[function(require,module,exports){
