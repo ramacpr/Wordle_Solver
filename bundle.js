@@ -112,10 +112,13 @@ function updateAllFrequencies(){
 
 function getNextGuess(wordMap, green, yellow, black, usedWord){
     let highestProbableWord = ''
+    console.log('in app.js wordMap size: ' + wordMap.size)
     if((green === undefined || green === null || green.size === 0) && (yellow === undefined || yellow === null || yellow.size === 0) && (black === undefined || black === null || black.size === 0)){
         return ['plumb', wordMap]
     } else {
-        let filteredGreenResults = green.size === 0 ? wordMap : filterForGreen(green)
+        let filteredGreenResults = green.size === 0 ? wordMap : filterForGreen(green, wordMap)
+        console.log(green.size)
+        console.log(wordMap.size)
         console.log('after green filter... ' + filteredGreenResults.size + ' possibilities')
         if(filteredGreenResults.size === 1){
             highestProbableWord = getHighestProbableWord(filteredGreenResults, usedWord)
@@ -154,16 +157,18 @@ function getHighestProbableWord(wordMap, usedWord){
 }
 
 // return the list of words with the letters at the specified position
-function filterForGreen(greenAplhabetPosMap){
+function filterForGreen(greenAplhabetPosMap, wordMap){
     let result = new Map()
     let applyGreenFilter = getGreenFilterToExecute(greenAplhabetPosMap)
-    wfm.wordFrequencyMap.forEach(function(value, key){
+    console.log(applyGreenFilter)
+    wordMap.forEach(function(value, key){
         // key is the word and value its frequency
         if(applyGreenFilter(key) == true){
             result.set(key, value)
         }
     })
 
+    console.log(result.size)
     return result
 }
 
@@ -1387,7 +1392,7 @@ this.wordle.bundle = function(e) {
                     mode: "open"
                 }), e.today = new Date, e.refreshTimer = as();
                 var n = za();
-                return e.lastPlayedTs = n.lastPlayedTs, e.lastCompletedTs = n.lastCompletedTs, !e.lastPlayedTs || Ba(new Date(e.lastPlayedTs), e.today) >= 1 ? (e.boardState = new Array(6).fill(""), e.evaluations = new Array(6).fill(null), e.solution = Va(e.today), e.dayOffset = Fa(e.today), e.lastCompletedTs = n.lastCompletedTs, e.hardMode = n.hardMode, e.restoringFromLocalStorage = !1, ja({
+                return e.lastPlayedTs = n.lastPlayedTs, e.lastCompletedTs = n.lastCompletedTs, !e.lastPlayedTs || Ba(new Date(e.lastPlayedTs), e.today) >= 1 ? (e.boardState = new Array(6).fill(""), e.evaluations = new Array(6).fill(null), e.solution = "comma", e.dayOffset = Fa(e.today), e.lastCompletedTs = n.lastCompletedTs, e.hardMode = n.hardMode, e.restoringFromLocalStorage = !1, ja({
                     rowIndex: e.rowIndex,
                     boardState: e.boardState,
                     evaluations: e.evaluations,
@@ -1532,6 +1537,7 @@ this.wordle.bundle = function(e) {
                         let guess = wordle_solver.getNextGuessWord(this.allWordMap, this.greenAplhabetPosMap, this.yellowAplhabetPosMap, this.blackAplhabetPosMap, this.usedWords)
                         this.usedWords.add(guess[0]) 
                         this.allWordMap = new Map(guess[1])
+                        console.log(guess[0] + ' - next map size: ' + guess[1].size)
                         this.hardMode = false
                         this.boardState[this.rowIndex] = guess[0]
                         this.$board.querySelectorAll("game-row")[this.rowIndex].setAttribute("letters", guess[0])

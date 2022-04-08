@@ -25,10 +25,13 @@ function updateAllFrequencies(){
 
 function getNextGuess(wordMap, green, yellow, black, usedWord){
     let highestProbableWord = ''
+    console.log('in app.js wordMap size: ' + wordMap.size)
     if((green === undefined || green === null || green.size === 0) && (yellow === undefined || yellow === null || yellow.size === 0) && (black === undefined || black === null || black.size === 0)){
         return ['plumb', wordMap]
     } else {
-        let filteredGreenResults = green.size === 0 ? wordMap : filterForGreen(green)
+        let filteredGreenResults = green.size === 0 ? wordMap : filterForGreen(green, wordMap)
+        console.log(green.size)
+        console.log(wordMap.size)
         console.log('after green filter... ' + filteredGreenResults.size + ' possibilities')
         if(filteredGreenResults.size === 1){
             highestProbableWord = getHighestProbableWord(filteredGreenResults, usedWord)
@@ -67,16 +70,18 @@ function getHighestProbableWord(wordMap, usedWord){
 }
 
 // return the list of words with the letters at the specified position
-function filterForGreen(greenAplhabetPosMap){
+function filterForGreen(greenAplhabetPosMap, wordMap){
     let result = new Map()
     let applyGreenFilter = getGreenFilterToExecute(greenAplhabetPosMap)
-    wfm.wordFrequencyMap.forEach(function(value, key){
+    console.log(applyGreenFilter)
+    wordMap.forEach(function(value, key){
         // key is the word and value its frequency
         if(applyGreenFilter(key) == true){
             result.set(key, value)
         }
     })
 
+    console.log(result.size)
     return result
 }
 
