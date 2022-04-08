@@ -165,8 +165,8 @@ function getHighestProbableWord(wordMap, usedWord){
 // return the list of words with the letters at the specified position
 function filterForGreen(greenAplhabetPosMap, wordMap){
     let result = new Map()
-    let applyGreenFilter = getGreenFilterToExecute(greenAplhabetPosMap)
-    wordMap.forEach(function(value, key){
+    let applyGreenFilter = getGreenFilterToExecute(greenAplhabetPosMap, wordMap)
+    wfm.wordFrequencyMap.forEach(function(value, key){
         // key is the word and value its frequency
         if(applyGreenFilter(key) == true){
             result.set(key, value)
